@@ -1,21 +1,20 @@
-import { addDoc, collection, getCountFromServer } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dbService } from "../fBase";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import { useForm } from "react-hook-form";
+import useGetCount from "../lib/useGetCount";
 
-const My = ({ bookCount }) => {
+const My = () => {
   const [myBookCount, setMyBookCount] = useState(0);
-  const [isCount, setIsCount] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: {},
-  } = useForm();
+  const [loading, setLoading] = useState(true);
+  const { register, handleSubmit } = useForm();
 
-  const sampleObj = {
+  const { bookCount } = useGetCount();
+
+  const dbObj = {
     title: "",
     author: "",
     publisher: "",
@@ -23,20 +22,11 @@ const My = ({ bookCount }) => {
     site: "",
     comment: "",
     date: new Date().getTime(),
-    index: bookCount,
+    index: 0,
     subtitle: "",
   };
 
-  const [inputValues, setInputValues] = useState(sampleObj);
   const navigate = useNavigate();
-
-  const onChange = (event) => {
-    const { value, name } = event.target;
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-  };
 
   const onValid = async ({
     title,
@@ -46,55 +36,31 @@ const My = ({ bookCount }) => {
     site,
     subtitle,
   }) => {
-    console.log(title, author, publisher, image, site, subtitle);
-    await setInputValues((prev) => ({
-      ...prev,
-      title,
-      author,
-      publisher,
-      image,
-      site,
-      subtitle,
-    }));
-    if (!isCount) {
+    //await addDoc(collection(dbService, "books"), inputValues);
+    if (loading) {
       alert("기다려주세요");
     }
-    console.log("inputValues", inputValues);
-    //await addDoc(collection(dbService, "books"), inputValues);
+
     await addDoc(collection(dbService, "books"), {
+      ...dbObj,
       title,
       author,
       publisher,
       image,
       site,
-      comment: "",
-      date: new Date().getTime(),
-      index: bookCount,
+      index: myBookCount,
       subtitle: subtitle ? subtitle : "",
     });
-    setInputValues(sampleObj);
-    //넘어가기
+
     navigate("/books");
   };
 
-  const getBookCount = async () => {
-    const coll = collection(dbService, "books");
-    const snapshot = await getCountFromServer(coll);
-    console.log("count: ", snapshot.data().count);
-    setMyBookCount(snapshot.data().count);
-  };
-
   useEffect(() => {
-    getBookCount();
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      index: myBookCount,
-    }));
-    console.log("!!", inputValues.index);
-    console.log("from props bookCount: ", bookCount);
-    console.log("from this bookCount: ", myBookCount);
-    setIsCount(true);
-  }, [myBookCount, inputValues.index]);
+    if (bookCount !== 0) {
+      setMyBookCount(bookCount);
+      setLoading(false);
+    }
+  }, [bookCount]);
 
   return (
     <div>

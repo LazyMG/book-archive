@@ -13,15 +13,18 @@ import {
 import { dbService } from "../fBase";
 import Nav from "../components/Nav";
 import Loading from "../components/Loading";
+import useGetCount from "../lib/useGetCount";
 
-const Detail = ({ bookCount }) => {
+const Detail = () => {
   const { id } = useParams();
   const [detailBook, setDetailBook] = useState({});
-  const [load, setLoad] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [myComment, setMyComment] = useState("");
   const [editing, setEditing] = useState(false);
-  const [next, setNext] = useState(true);
   const navigate = useNavigate();
+
+  const { bookCount, load: myLoading } = useGetCount();
+  console.log(bookCount);
 
   const getBook = async (id) => {
     const documentRef = doc(dbService, "books", id);
@@ -29,9 +32,9 @@ const Detail = ({ bookCount }) => {
       const documentSnapshot = await getDoc(documentRef);
       if (documentSnapshot.exists()) {
         const data = documentSnapshot.data();
-        console.log("data: ", data);
+        //console.log("data: ", data);
         setDetailBook(data);
-        setLoad(true);
+        setLoading(true);
       } else {
         console.log("no data");
       }
@@ -82,30 +85,32 @@ const Detail = ({ bookCount }) => {
   };
 
   const nextBook = () => {
-    let myIndex = detailBook.index + 1;
-    if (myIndex >= bookCount) {
+    if (myLoading) return;
+    let nextBookIndex = detailBook.index + 1;
+    if (nextBookIndex >= bookCount) {
       return;
     }
-    getBookID(myIndex);
+    getBookID(nextBookIndex);
   };
 
   const prevBook = () => {
-    let myIndex = detailBook.index - 1;
-    if (myIndex < 0) {
+    if (myLoading) return;
+    let prevBookIndex = detailBook.index - 1;
+    if (prevBookIndex < 0) {
       return;
     }
-    getBookID(myIndex);
+    getBookID(prevBookIndex);
   };
 
   const getBookID = async (index) => {
-    setLoad(false);
+    setLoading(false);
     const q = query(
       collection(dbService, "books"),
       where("index", "==", index)
     );
     const querySnapshot = await getDocs(q);
     const newBookId = querySnapshot.docs.map((doc) => doc.id);
-    setLoad(true);
+    setLoading(true);
     navigate(`/books/${newBookId}`);
   };
 
@@ -113,7 +118,7 @@ const Detail = ({ bookCount }) => {
     <>
       <Nav />
       <h1>Detail</h1>
-      {load ? (
+      {loading ? (
         <>
           <img alt="img" src={detailBook.image} />
           <div>{detailBook.title}</div>
