@@ -7,11 +7,14 @@ const Nav = () => {
       <Link to="/">
         <button>홈으로</button>
       </Link>
-      <Link to="/my">
+      <Link to="/upload">
         <button>책등록</button>
       </Link>
       <Link to="/books">
         <button>책목록</button>
+      </Link>
+      <Link to="/profile">
+        <button>프로필</button>
       </Link>
     </div>
   );

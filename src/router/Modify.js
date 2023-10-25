@@ -6,9 +6,8 @@ import { useForm } from "react-hook-form";
 
 const Modify = () => {
   const { id } = useParams();
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit } = useForm();
   const [detailBook, setDetailBook] = useState({});
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const getBook = async (id) => {
@@ -18,7 +17,6 @@ const Modify = () => {
       if (documentSnapshot.exists()) {
         const data = documentSnapshot.data();
         setDetailBook(data);
-        setLoading(false);
       } else {
         console.log("no data");
       }
@@ -67,6 +65,10 @@ const Modify = () => {
     }
 
     return nonEmptyFields;
+  };
+
+  const gotoDetail = () => {
+    navigate(`/books/${id}`);
   };
 
   return (
@@ -128,6 +130,7 @@ const Modify = () => {
         </div>
         <input type="submit" value="수정하기" />
       </form>
+      <button onClick={gotoDetail}>돌아가기</button>
     </div>
   );
 };
