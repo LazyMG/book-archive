@@ -24,7 +24,6 @@ const Detail = () => {
   const navigate = useNavigate();
 
   const { bookCount, load: myLoading } = useGetCount();
-  console.log(bookCount);
 
   const getBook = async (id) => {
     const documentRef = doc(dbService, "books", id);
@@ -64,7 +63,7 @@ const Detail = () => {
 
   useEffect(() => {
     getBook(id);
-  }, [id]);
+  }, [id, detailBook]);
 
   const onChange = (event) => {
     const { value } = event.target;
@@ -114,6 +113,11 @@ const Detail = () => {
     navigate(`/books/${newBookId}`);
   };
 
+  const gotoModify = () => {
+    //console.log(id);
+    navigate(`/books/modify/${id}`);
+  };
+
   return (
     <>
       <Nav />
@@ -145,6 +149,7 @@ const Detail = () => {
       <button style={{ fontSize: "100px" }} onClick={nextBook}>
         {">"}
       </button>
+      <button onClick={gotoModify}>책 정보 수정</button>
       <Footer />
     </>
   );

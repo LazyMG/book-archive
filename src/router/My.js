@@ -41,7 +41,7 @@ const My = () => {
       alert("기다려주세요");
     }
 
-    await addDoc(collection(dbService, "books"), {
+    const newBook = await addDoc(collection(dbService, "books"), {
       ...dbObj,
       title,
       author,
@@ -51,8 +51,8 @@ const My = () => {
       index: myBookCount,
       subtitle: subtitle ? subtitle : "",
     });
-
-    navigate("/books");
+    const id = newBook._key.path.segments[1];
+    navigate(`/books/${id}`);
   };
 
   useEffect(() => {
